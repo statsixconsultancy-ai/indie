@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07090c">
+<title>indie — AI animation studio for brands</title>
+<meta name="description" content="indie makes AI-animated brand films, ads, characters, film and explainers. Rolling.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Space+Mono:wght@400;700&family=Inter+Tight:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="home">
+<div class="wipe cover" id="wipe" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+
+<video id="hero-video" class="bgmedia" muted loop playsinline preload="auto" hidden></video>
+<canvas id="hero-gl" class="bgmedia" aria-hidden="true"></canvas>
+<canvas id="trail" class="trail" aria-hidden="true"></canvas>
+<div class="hudfix" aria-hidden="true"><span id="scene">01 · Opening</span><b id="frameNo">F0000</b><span id="pageTc">00:00:00</span></div>
+
+<header class="nav">
+  <a class="logo" href="./" aria-label="indie, home">indie<i>.</i></a>
+  <nav aria-label="Main">
+    <a href="#work">Work</a>
+    <a href="#process">Process</a>
+    <a href="#contact" class="pill">Start a project</a>
+  </nav>
+</header>
+
+<main>
+  <!-- 01 HERO -->
+  <section class="hero" id="top">
+    <div class="vf" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="hud hud-tl" aria-hidden="true"><span class="rec"></span>REC <b id="tc">00:00:00:00</b></div>
+    <div class="hud hud-tr" aria-hidden="true">AI MOTION STUDIO · 24 FPS · 2.39:1</div>
+    <h1 class="hero-title" aria-label="We make brands move.">
+      <span class="ln" data-split>WE MAKE</span>
+      <span class="ln" data-split>BRANDS</span>
+      <span class="ln serif" data-split>move.</span>
+    </h1>
+    <div class="hero-foot">
+      <p class="hero-sub">Brand films, ads, characters and short films, directed by people and powered by AI.</p>
+      <a class="cue" href="#manifesto" aria-label="Scroll down"><span>Scroll</span><i></i></a>
+    </div>
+  </section>
+
+  <!-- 02 MANIFESTO: your cursor is the focus puller -->
+  <section class="manifesto" id="manifesto">
+    <p class="eyebrow">( 01 — the belief )</p>
+    <div class="lens" id="lens">
+      <p class="manifesto-text soft" aria-hidden="true">We direct AI like a film crew. Every frame is composed, every cut is intentional, and every brand gets a story worth watching.</p>
+      <p class="manifesto-text sharp">We direct AI like a film crew. Every frame is composed, every cut is intentional, and every brand gets a story worth watching.</p>
+      <span class="lens-ring" id="lensRing" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    </div>
+    <p class="eyebrow lens-hint">Move your cursor: you are the focus puller</p>
+  </section>
+
+  <!-- 03 SERVICES: the spinning reel -->
+  <section class="rw" id="work">
+    <div class="rw-stick">
+      <canvas id="rw" aria-hidden="true"></canvas>
+      <p class="eyebrow">( 02 — what we make )</p>
+      <div class="rw-info" id="rwInfo" aria-live="polite">
+        <span class="rw-num" id="rwNum">01 / 06</span>
+        <h2 id="rwTitle">Brand Films</h2>
+        <p class="rw-tag" id="rwTag"></p>
+        <p class="rw-what" id="rwWhat"></p>
+        <ul class="rw-inc" id="rwInc"></ul>
+        <a class="rw-link" id="rwLink" href="services/brand-films.html">Open this page <span>→</span></a>
+      </div>
+      <div class="rw-dots" id="rwDots" role="group" aria-label="Choose a service"></div>
+      <p class="rw-hint">Scroll to spin the reel</p>
+    </div>
+    <nav class="sr" aria-label="All services">
+      <a href="services/brand-films.html">Brand Films</a><a href="services/ad-campaigns.html">Ad Campaigns</a><a href="services/animated-characters.html">Animated Characters</a><a href="services/film-making.html">Film Making</a><a href="services/product-explainers.html">Product &amp; Explainers</a><a href="services/social-loops.html">Social Loops</a>
+    </nav>
+  </section>
+
+  <!-- 04 PROCESS: the edit timeline -->
+  <section class="tl" id="process">
+    <div class="tl-pin">
+      <p class="eyebrow">( 03 — how it's made )</p>
+      <div class="tl-stage">
+        <span class="tl-step" id="tlStep">01 / 05</span>
+        <h2 id="tlTitle">Brief</h2>
+        <p id="tlText">You tell us the vibe. We listen like directors, not vendors.</p>
+      </div>
+      <div class="pgm-wrap" aria-hidden="true"><canvas class="pgm" id="pgm" width="640" height="400"></canvas><span class="pgm-tag"><i></i>PGM · LIVE</span></div>
+      <div class="tl-ui" id="tlUi" aria-hidden="true">
+        <div class="ruler" id="ruler"></div>
+        <div class="tracks">
+          <div class="track"><b>TXT</b><div class="lane"><i class="clip c1" style="left:0;width:18%">Brief</i><i class="clip c5" style="left:88%;width:12%">Ship</i></div></div>
+          <div class="track"><b>V1</b><div class="lane"><i class="clip c2" style="left:18%;width:20%">Boards</i><i class="clip c3" style="left:38%;width:32%">Generate</i><i class="clip c4" style="left:70%;width:20%">Cut</i></div></div>
+          <div class="track"><b>A1</b><div class="lane"><i class="clip c3" style="left:40%;width:42%">Voice</i></div></div>
+          <div class="track"><b>A2</b><div class="lane"><i class="clip c4" style="left:52%;width:40%">Score</i></div></div>
+          <div class="track"><b>FX</b><div class="lane"><i class="clip c2" style="left:62%;width:30%">Grade</i></div></div>
+        </div>
+        <div class="playhead" id="ph"><span id="phTc">00:00</span></div>
+      </div>
+      <p class="tl-hint">Scroll to play · drag the playhead to scrub</p>
+    </div>
+  </section>
+
+  <!-- 05 MARQUEE -->
+  <section class="marq" aria-hidden="true">
+    <div class="mrow" id="m1"><span>BRAND FILMS ✦ AD CAMPAIGNS ✦ CHARACTERS ✦ FILM MAKING ✦ EXPLAINERS ✦ SOCIAL LOOPS ✦ </span><span>BRAND FILMS ✦ AD CAMPAIGNS ✦ CHARACTERS ✦ FILM MAKING ✦ EXPLAINERS ✦ SOCIAL LOOPS ✦ </span></div>
+    <div class="mrow out" id="m2"><span>PEOPLE + AI ✦ DIRECTED NOT GENERATED ✦ MADE TO MOVE ✦ PEOPLE + AI ✦ DIRECTED NOT GENERATED ✦ MADE TO MOVE ✦ </span><span>PEOPLE + AI ✦ DIRECTED NOT GENERATED ✦ MADE TO MOVE ✦ PEOPLE + AI ✦ DIRECTED NOT GENERATED ✦ MADE TO MOVE ✦ </span></div>
+  </section>
+
+  <!-- 06 CTA: the slate -->
+  <section class="cta" id="contact">
+    <p class="eyebrow">( 04 — your scene )</p>
+    <h2 class="cta-title" data-split>Let's roll.</h2>
+    <button class="clap" id="clap" aria-label="Clap the slate">
+      <span class="clap-top" id="clapTop"></span>
+      <span class="clap-body">
+        <span class="row"><em>PROD.</em><b>indie</b></span>
+        <span class="row"><em>SCENE</em><b>01</b></span>
+        <span class="row"><em>TAKE</em><b id="take">01</b></span>
+        <span class="row"><em>DIR.</em><b>You</b></span>
+      </span>
+    </button>
+    <a class="action" id="action" href="mailto:hello@indie.studio">Action <span>→</span></a>
+  </section>
+</main>
+
+<footer class="foot"><span>© <span id="yr">2026</span> indie studios</span><span>Made with AI, directed by people.</span><a href="#top">Back to start ↑</a></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="data.js"></script>
+<script src="sketches.js"></script>
+<script src="hero.js"></script>
+<script src="trail.js"></script>
+<script src="home.js"></script>
+</body>
+</html>

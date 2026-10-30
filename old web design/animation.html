@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0504">
+<title>The Zoom — indie</title>
+<meta name="description" content="A scroll-driven animation journey by indie, the AI animation studio: tunnel, burst, reels.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="animation.css">
+</head>
+<body class="zoom">
+<div class="curtain cover" id="curtain" aria-hidden="true"></div>
+
+<header class="top">
+  <a class="l" href="index.html">← The reel</a>
+  <a class="mark" href="index.html" aria-label="indie, home">indie<i>.</i></a>
+  <span class="r"><span id="chapter">01 · The tunnel</span></span>
+</header>
+
+<main class="track" id="track">
+  <div class="stage">
+    <canvas id="c" aria-hidden="true"></canvas>
+    <div class="finale" id="finale" aria-hidden="true">
+      <p class="f-eyebrow">Pick a reel</p>
+      <nav class="pills" aria-label="Services">
+        <a href="services/brand-films.html">Brand Films</a>
+        <a href="services/ad-campaigns.html">Ad Campaigns</a>
+        <a href="services/animated-characters.html">Animated Characters</a>
+        <a href="services/film-making.html">Film Making</a>
+        <a href="services/product-explainers.html">Product &amp; Explainers</a>
+        <a href="services/social-loops.html">Social Loops</a>
+      </nav>
+    </div>
+    <div class="bar" aria-hidden="true"><i id="prog"></i></div>
+    <p class="scrollhint" id="hint">Scroll</p>
+  </div>
+  <h1 class="sr">The Zoom: an animated journey by indie. Scroll to fly through the tunnel and reach the reels.</h1>
+</main>
+
+<script src="data.js"></script>
+<script src="art.js"></script>
+<script src="animation.js"></script>
+</body>
+</html>

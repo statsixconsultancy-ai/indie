@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ecebe6">
+<title>indie — AI animated films &amp; ads for brands</title>
+<meta name="description" content="indie is an AI animation studio making brand films, ads, characters, film and explainers. Browse what we make.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loader" role="status">
+  <div class="ld-word">indie<i>.</i></div>
+  <div class="ld-row"><span>Loading the reel</span><span id="pct">000</span></div>
+</div>
+
+<canvas id="stage" aria-hidden="true"></canvas>
+<div class="paper" aria-hidden="true"></div>
+
+<header class="top">
+  <span class="side"></span>
+  <a class="mark" href="#" aria-label="indie, back to start">indie<i>.</i></a>
+  <button class="side txt-btn" id="studioBtn" aria-expanded="false">Studio ↗</button>
+</header>
+
+<div class="roller" id="roller" aria-hidden="true"><small>No.</small><span class="digits" id="digits"></span><small class="of" id="of"></small></div>
+
+<div class="title" id="titleWrap" aria-hidden="true">
+  <div class="kind" id="kind"></div>
+  <div class="t-mask"><div class="t" id="title"></div></div>
+</div>
+
+<div class="edge l">What we make</div>
+<div class="edge r" id="year">2026</div>
+
+<nav class="bar" id="bar" aria-label="Reel controls">
+  <button id="prev" aria-label="Previous reel">←</button>
+  <button id="flip">Flip <kbd>Space</kbd></button>
+  <button id="open">Open <kbd>Enter</kbd></button>
+  <button id="next" aria-label="Next reel">→</button>
+</nav>
+
+<section class="detail" id="detail" aria-hidden="true">
+  <div class="credits" id="credits"></div>
+  <div class="ideas" id="ideas"></div>
+</section>
+
+<section class="studio" id="studio" aria-hidden="true" aria-label="Studio">
+  <button class="txt-btn close" id="studioClose">Close ×</button>
+  <div class="st-inner">
+    <p class="st-eyebrow">indie — AI animation studio</p>
+    <h2 class="st-big">We make brands <em>move.</em></h2>
+    <ol class="st-list">
+      <li tabindex="0"><span>01</span>Brand films</li>
+      <li tabindex="0"><span>02</span>Ad campaigns</li>
+      <li tabindex="0"><span>03</span>Animated characters</li>
+      <li tabindex="0"><span>04</span>Film making</li>
+      <li tabindex="0"><span>05</span>Product &amp; explainers</li>
+      <li tabindex="0"><span>06</span>Social loops</li>
+    </ol>
+    <a class="st-mail" href="mailto:hello@indie.studio">hello@indie.studio →</a>
+  </div>
+</section>
+
+<section class="screening" id="screening" aria-hidden="true" aria-label="The Screening Room"></section>
+<div class="theater" id="theater" role="dialog" aria-modal="true" aria-hidden="true"></div>
+
+<div class="sr" aria-live="polite" id="live"></div>
+<noscript><p style="position:fixed;inset:0;display:grid;place-items:center;background:#ecebe6;z-index:200">indie makes AI-animated films, ads and brand worlds — turn on JavaScript to browse the reel.</p></noscript>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

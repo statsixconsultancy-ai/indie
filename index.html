@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07090c">
+<title>indie — AI animation studio for brands</title>
+<meta name="description" content="Fly through the indie city. Six buildings, six services: brand films, ads, characters, film, explainers and social loops.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Syne:wght@500;700;800&family=Space+Mono:wght@400;700&family=Inter+Tight:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+</script>
+</head>
+<body class="home city-home">
+<div class="wipe cover" id="wipe" aria-hidden="true"><span class="wipe-t" id="wipeT"></span></div>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+<div class="cine" aria-hidden="true"><i class="bar t"></i><i class="bar b"></i><i class="grain"></i><i class="vig"></i></div>
+
+<!-- sky + the 3D city live behind everything -->
+<video id="hero-video" class="bgmedia" muted loop playsinline preload="none" hidden></video>
+<canvas id="city" class="bgmedia" aria-hidden="true"></canvas>
+<div class="explore-layer" id="exploreLayer" aria-hidden="true"></div>
+<aside class="explore-hud" id="exploreHud" aria-label="Free explore controls">
+  <p class="eh-title"><i></i>Free explore</p>
+  <ul class="eh-help"><li><b>Drag</b> look around</li><li><b>Right-drag</b> slide sideways</li><li><b>Scroll</b> zoom in and out</li><li><b>W A S D</b> walk · <b>R / F</b> up / down · <b>Shift</b> faster</li></ul>
+  <div class="eh-fly" role="group" aria-label="Fly to a building"><button data-fly="0">01</button><button data-fly="1">02</button><button data-fly="2">03</button><button data-fly="3">04</button><button data-fly="4">05</button><button data-fly="5">06</button></div>
+  <button class="eh-exit" id="exploreExit" type="button">← Back to the scroll flight <kbd>Esc</kbd></button>
+</aside>
+<button class="snd-btn" id="sndBtn" type="button" aria-pressed="false" aria-label="Toggle the film score"><span class="snd-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><b>Sound off</b></button>
+<div class="hudfix" aria-hidden="true"><span id="scene">01 · The city</span><b id="frameNo">F0000</b><span id="pageTc">00:00:00</span></div>
+
+<header class="nav">
+  <a class="logo" href="./" aria-label="indie, home">indie<i>.</i></a>
+  <nav aria-label="Main">
+    <a href="#top">The city</a>
+    <a href="#process">Process</a>
+    <a href="#contact" class="pill">Start a project</a>
+  </nav>
+</header>
+
+<main>
+  <!-- THE FLIGHT: scroll flies the camera through the city, one building per service -->
+  <section class="flight" id="top">
+    <div class="fl-stick" id="stick">
+
+      <div class="fp fp-hero" id="fpHero">
+        <div class="vf" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="hud hud-tl" aria-hidden="true"><span class="rec"></span>REC <b id="tc">00:00:00:00</b></div>
+        <div class="hud hud-tr" aria-hidden="true">AI MOTION STUDIO · 24 FPS · 2.39:1</div>
+        <p class="hero-what"><i></i>AI animation studio<span class="hw-long"> · films · ads · cinematography</span></p>
+        <h1 class="hero-title" aria-label="We make brands move.">
+          <span class="ln" data-split>WE MAKE</span>
+          <span class="ln" data-split>BRANDS</span>
+          <span class="ln serif" data-split>move.</span>
+        </h1>
+        <div class="hero-foot">
+          <p class="hero-sub"><b>indie is an AI animation studio.</b> We make brand films, ads and cinematic work, directed by people and powered by AI. Scroll to fly through our city.</p>
+        </div>
+      </div>
+
+      <div class="fp fp-belief" id="fpBelief">
+        <p class="eyebrow">( the belief )</p>
+        <p class="belief-text"><b>We are an AI animation studio.</b> We direct AI like a film crew: every frame composed, every cut intentional, every brand a story worth watching.</p>
+        <p class="belief-chips"><span>AI filmmaking</span><span>AI ads</span><span>Cinematography</span></p>
+      </div>
+
+      <div class="fp fp-svc" id="fpSvc" aria-live="polite">
+        <canvas class="cd-wall" id="cdWall" aria-hidden="true"></canvas>
+        <div class="cd-strip" aria-hidden="true"></div>
+        <div class="cd-body">
+          <div class="cd-head">
+            <span class="cd-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path id="cdIco" d=""/></svg></span>
+            <span class="cd-slate"><b id="rwNum">01 / 06</b>Scene <span id="cdScene">01</span> · Take 01</span>
+          </div>
+          <div class="cd-screen" aria-hidden="true"><video id="cdVideo" muted loop playsinline preload="none" hidden></video><canvas id="cdPreview" width="520" height="276"></canvas><span class="cd-rec"><i></i>REC <b id="cdTc">00:00:00</b></span></div>
+          <h2 id="rwTitle">AI Filmmaking</h2>
+          <p class="rw-tag" id="rwTag"></p>
+          <p class="rw-what" id="rwWhat"></p>
+          <ol class="cd-credits" id="rwInc"></ol>
+          <a class="rw-link" id="rwLink" href="services/ai-filmmaking.html">Enter this building <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="pins" id="pins" aria-label="Buildings">
+        <a class="pin" href="services/ai-filmmaking.html" data-i="0"><i></i><span><b>01</b> AI Filmmaking</span></a>
+        <a class="pin" href="services/ai-ads.html" data-i="1"><i></i><span><b>02</b> AI Ads</span></a>
+        <a class="pin" href="services/cinematography.html" data-i="2"><i></i><span><b>03</b> Cinematography</span></a>
+        <a class="pin" href="services/films-we-appreciate.html" data-i="3"><i></i><span><b>04</b> Films We Appreciate</span></a>
+        <a class="pin" href="services/how-we-work.html" data-i="4"><i></i><span><b>05</b> How We Work</span></a>
+        <a class="pin" href="services/about-us.html" data-i="5"><i></i><span><b>06</b> About Us</span></a>
+      </div>
+
+      <button class="explore-btn" id="exploreBtn" type="button"><span aria-hidden="true">◎</span> Explore the city <kbd>E</kbd></button>
+      <div class="fl-dots" id="flDots" role="group" aria-label="Fly to"></div>
+      <p class="fl-hint" id="flHint">Scroll to fly</p>
+
+      <div class="city-load" id="cityLoad" role="status"><span>Building the city</span><b id="cityPct">0%</b><i><u id="cityBar"></u></i></div>
+    </div>
+  </section>
+
+  <section class="chapter" id="ch2" aria-label="Chapter two: the making"><p class="ch-kicker">Chapter II</p><h2 class="ch-title">The making</h2><p class="ch-sub">five takes · one film</p><i class="ch-line"></i></section>
+
+  <!-- HOW IT'S MADE: five takes, one big number and a live preview that follow you down the page -->
+  <section class="takes" id="process">
+    <div class="tk-left">
+      <div class="tk-sticky">
+        <p class="eyebrow">( how it's made )</p>
+        <div class="tk-num" id="tkNum" aria-hidden="true">01</div>
+        <div class="tk-screen" aria-hidden="true">
+          <canvas class="tk-canvas" id="tkCanvas" width="640" height="320"></canvas>
+          <video class="tk-vid" data-i="0" muted loop playsinline preload="none"></video>
+          <video class="tk-vid" data-i="1" muted loop playsinline preload="none"></video>
+          <video class="tk-vid" data-i="2" muted loop playsinline preload="none"></video>
+          <video class="tk-vid" data-i="3" muted loop playsinline preload="none"></video>
+          <video class="tk-vid" data-i="4" muted loop playsinline preload="none"></video>
+          <span class="tk-rec"><i></i>TAKE <b id="tkTk">01</b></span>
+          <span class="tk-cap" id="tkCap">You tell us the vibe.</span>
+        </div>
+      </div>
+    </div>
+    <ol class="tk-right">
+      <li class="tk-step"><span>Take 01</span><h3>Brief</h3><p>You tell us the vibe. We listen like directors, not vendors.</p></li>
+      <li class="tk-step"><span>Take 02</span><h3>Script &amp; boards</h3><p>Ideas become frames. Every shot, beat and cut is planned before a pixel moves.</p></li>
+      <li class="tk-step"><span>Take 03</span><h3>Generate</h3><p>AI crews, human taste. We direct hundreds of takes and keep only the ones with a pulse.</p></li>
+      <li class="tk-step"><span>Take 04</span><h3>Cut &amp; sound</h3><p>Edit, score, voice and grade, until every frame earns its place.</p></li>
+      <li class="tk-step"><span>Take 05</span><h3>Ship</h3><p>Delivered in every format your brand lives in, ready to roll.</p></li>
+    </ol>
+  </section>
+
+  <section class="marq" aria-hidden="true">
+    <div class="mrow" id="m1"><span>AI FILMMAKING ✦ AI ADS ✦ CINEMATOGRAPHY ✦ FILMS WE APPRECIATE ✦ HOW WE WORK ✦ ABOUT US ✦ </span><span>AI FILMMAKING ✦ AI ADS ✦ CINEMATOGRAPHY ✦ FILMS WE APPRECIATE ✦ HOW WE WORK ✦ ABOUT US ✦ </span></div>
+    <div class="mrow out" id="m2"><span>PEOPLE + AI ✦ DIRECTED NOT GENERATED ✦ MADE TO MOVE ✦ PEOPLE + AI ✦ DIRECTED NOT GENERATED ✦ MADE TO MOVE ✦ </span><span>PEOPLE + AI ✦ DIRECTED NOT GENERATED ✦ MADE TO MOVE ✦ PEOPLE + AI ✦ DIRECTED NOT GENERATED ✦ MADE TO MOVE ✦ </span></div>
+  </section>
+
+  <section class="chapter" id="ch3" aria-label="Chapter three: the final scene"><p class="ch-kicker">Chapter III</p><h2 class="ch-title">The final scene</h2><p class="ch-sub">yours, if you want it</p><i class="ch-line"></i></section>
+
+  <section class="cta" id="contact">
+    <p class="eyebrow">( your scene )</p>
+    <h2 class="cta-title" data-split>Let's roll.</h2>
+    <button class="clap" id="clap" aria-label="Clap the slate">
+      <span class="clap-top" id="clapTop"></span>
+      <span class="clap-body">
+        <span class="row"><em>PROD.</em><b>indie</b></span>
+        <span class="row"><em>SCENE</em><b>01</b></span>
+        <span class="row"><em>TAKE</em><b id="take">01</b></span>
+        <span class="row"><em>DIR.</em><b>You</b></span>
+      </span>
+    </button>
+    <a class="action" id="action" href="mailto:hello@indie.studio">Action <span>→</span></a>
+  </section>
+</main>
+
+<footer class="credits" aria-label="Credits">
+  <p class="cr-the">The End</p>
+  <p class="cr-title">A film by <em>indie</em></p>
+  <ul class="cr-list">
+    <li><span>Directed by</span><b>People</b></li>
+    <li><span>Powered by</span><b>AI</b></li>
+    <li><span>Cinematography</span><b>indie studios</b></li>
+    <li><span>Filmed in</span><b>Downtown Toronto</b></li>
+  </ul>
+  <div class="cr-row"><span>© <span id="yr">2026</span> indie studios</span><a href="mailto:hello@indie.studio">hello@indie.studio</a><a href="#top">Back to the city ↑</a></div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="data.js"></script>
+<script src="sketches.js"></script>
+<script src="sound.js"></script>
+<script src="home.js"></script>
+<script type="module" src="city.js"></script>
+</body>
+</html>

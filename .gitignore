@@ -1,0 +1,13 @@
+# local tooling
+.claude/
+skills-lock.json
+node_modules/
+*.log
+.DS_Store
+
+# the full-detail city model is over GitHub's 100 MB file limit: keep it local (see README)
+assets/downtown_toronto_yonge_and_dundas.glb
+assets/cards/downtown_toronto_yonge_and_dundas.glb
+
+# raw downloaded clips: only the converted ones are used by the site
+assets/cards/_originals/
