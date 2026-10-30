@@ -24,8 +24,8 @@ node build.cjs
 ## The 3D city
 
 - `assets/3d/city.glb` — a light (12 MB) version of the city. Phones and low-memory devices use it, and it is the fallback.
-- The **full-detail** model (`downtown_toronto_yonge_and_dundas.glb`, about 200 MB) is **not in this repository**, because GitHub rejects files over 100 MB.
-  To use it, put it at `assets/downtown_toronto_yonge_and_dundas.glb`. The site picks it up automatically on desktop.
+- `assets/3d/city-hd.glb` (47 MB) is the high-detail city used on desktop: full geometry and 2048 px textures, re-compressed so it fits on GitHub. `assets/3d/city.glb` (12 MB) is the light copy for phones.
+  The original 200 MB model stays on your computer only (it is git-ignored).
   (Git LFS or separate hosting both work if you want it versioned.)
 - `assets/3d/street_path.json` — the street-level camera route, computed from the model so the camera stays on open streets.
 

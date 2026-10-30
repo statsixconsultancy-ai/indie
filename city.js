@@ -110,7 +110,7 @@ const stopFromP = p => { if (p < 0.06) return 0; if (p < 0.13) return 1; const u
 /* ---- load the model: full quality first, with the compact copy as a safety net ---- */
 const params = new URLSearchParams(location.search);
 const smallDevice = matchMedia('(pointer: coarse)').matches && innerWidth < 900;
-const FULL = 'assets/downtown_toronto_yonge_and_dundas.glb', LITE = 'assets/3d/city.glb';
+const FULL = 'assets/3d/city-hd.glb', LITE = 'assets/3d/city.glb';
 const wantLite = params.has('lite') || smallDevice || (navigator.deviceMemory && navigator.deviceMemory < 4);
 const loader = new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder);
 let loaded = false, modelName = '';
@@ -121,7 +121,13 @@ function mergeByMaterial(root) {
   const buckets = new Map(), dead = [];
   root.traverse(o => {
     if (!o.isMesh || Array.isArray(o.material)) return;
-    const g = o.geometry.clone(); g.applyMatrix4(o.matrixWorld); dead.push(o);
+    const g = o.geometry.clone(); dead.push(o);
+    for (const k of Object.keys(g.attributes)) {   // compressed models store interleaved / quantised data: turn it into plain floats so it can be merged
+      const a = g.attributes[k], n = a.itemSize, f = new Float32Array(a.count * n);
+      for (let i = 0; i < a.count; i++) { f[i * n] = a.getX(i); if (n > 1) f[i * n + 1] = a.getY(i); if (n > 2) f[i * n + 2] = a.getZ(i); if (n > 3) f[i * n + 3] = a.getW(i); }
+      g.setAttribute(k, new THREE.BufferAttribute(f, n));
+    }
+    g.applyMatrix4(o.matrixWorld);
     if (o.matrixWorld.determinant() < 0 && g.index) { const ix = g.index.array; for (let i = 0; i < ix.length; i += 3) { const a = ix[i + 1]; ix[i + 1] = ix[i + 2]; ix[i + 2] = a; } g.index.needsUpdate = true; }   // mirrored objects keep their faces facing outwards
     const key = o.material.uuid + '|' + Object.keys(g.attributes).sort().join(',') + '|' + (g.index ? 1 : 0);
     if (!buckets.has(key)) buckets.set(key, { mat: o.material, list: [] }); buckets.get(key).list.push(g);
