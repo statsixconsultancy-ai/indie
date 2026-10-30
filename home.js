@@ -59,7 +59,7 @@
     const MAP = [4, 0, 5, 1, 2], CAPS = ['You tell us the vibe.', 'Every shot, planned.', 'Hundreds of takes, one keeper.', 'Cut, score, grade.', 'Ready to roll.'], ok = [false, false, false, false, false], tried = [];
     let cur = 0, vis = false;
     const load = i => { if (i > 4 || tried[i]) return; tried[i] = true; const v = vids[i]; v.addEventListener('loadeddata', () => { ok[i] = true; if (cur === i) show(i); }, { once: true }); v.addEventListener('error', () => { ok[i] = false; }, { once: true }); v.src = 'assets/takes/take-' + (i + 1) + '.mp4'; v.load(); };
-    function show(i) { vids.forEach((v, k) => { const on = k === i && ok[k]; v.classList.toggle('on', on); if (on) v.play().catch(() => {}); else v.pause(); }); cvs.style.opacity = ok[i] ? 0 : 1; }
+    function show(i) { vids.forEach((v, k) => { const on = k === i && ok[k]; v.classList.toggle('on', on); if (on) v.play().catch(() => {}); else v.pause(); }); cvs.style.display = 'none'; }
     steps.forEach((el, i) => ScrollTrigger.create({ trigger: el, start: 'top 55%', end: 'bottom 55%', onToggle: s => {
       if (!s.isActive) return; cur = i; load(i); load(i + 1); show(i); sec.style.setProperty('--tk', SERVICES[MAP[i]].c[0]); numEl.textContent = pad(i + 1); tkTk.textContent = pad(i + 1);
       gsap.fromTo(numEl, { yPercent: 25, opacity: 0, filter: 'blur(14px)' }, { yPercent: 0, opacity: 1, filter: 'blur(0px)', duration: 0.8, ease: 'expo.out', overwrite: true });
@@ -67,7 +67,7 @@
     } }));
     $$('.tk-step > *').forEach(el => gsap.from(el, { y: 40, opacity: 0, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 85%' } }));
     ScrollTrigger.create({ trigger: sec, start: 'top bottom', end: 'bottom top', onToggle: s => { vis = s.isActive; if (s.isActive) { load(cur); } else vids.forEach(v => v.pause()); } });
-    gsap.ticker.add(t => { if (vis && !ok[cur]) drawSketch(MAP[cur], g, cvs.width, cvs.height, t); });
+    
   })();
 
   /* chapter title cards: the letters open up as each one arrives */

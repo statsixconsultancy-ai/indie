@@ -59,23 +59,50 @@ const camera = new THREE.PerspectiveCamera(42, 1, 0.8, 4000);
 const V = (x, y, z) => new THREE.Vector3(x, y, z), P_INTRO = 0.2, sstep = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 let street = await fetch('assets/3d/street_path.json').then(r => r.json()).catch(() => null);
 if (!street) street = { y: 120, pts: LM.map(l => [l.x - 60, l.z + 60]), arrive: [0, 1, 2, 3, 4, 5] };   // safety net: a simple loop over the roofs
-const SY = street.y, sp = street.pts.map(([x, z]) => V(x, SY, z)), STREET_N = sp.length, ARR = street.arrive, arriveU = ARR.map(i => i / Math.max(1, STREET_N - 1));
+const SY = street.y, sp = street.pts.map(([x, z]) => V(x, SY, z)), STREET_N = sp.length, ARR = street.arrive;
+const ads = await fetch('assets/3d/billboards.json').then(r => r.json()).catch(() => []);
+/* scroll pacing: the stretches of street that have ads take much more scroll, the rest is passed quickly just to keep the flight continuous */
+const adNear = sp.map((p, i) => { const dir = sp[Math.min(STREET_N - 1, i + 3)].clone().sub(sp[Math.max(0, i - 3)]); dir.y = 0; dir.normalize(); let b = 0;
+  ads.forEach(a => { const dx = a.x - p.x, dz = a.z - p.z, d = Math.hypot(dx, dz) || 1, face = (-dx * a.nx - dz * a.nz) / d, fwd = (dx * dir.x + dz * dir.z) / d; if (face > 0.25 && fwd > 0.2) b = Math.max(b, 1 - sstep(30, 100, d)); }); return b; });
+const wAt = i => 0.06 + 2.2 * adNear[i] + 0.5 * Math.max(...ARR.map(k => 1 - sstep(0, 14, Math.abs(i - k))));   // ad streets slow, plus a short pause at each building
+const cumW = [0]; for (let i = 1; i < STREET_N; i++) cumW.push(cumW[i - 1] + (wAt(i) + wAt(i - 1)) / 2);
+const TOTW = cumW[STREET_N - 1], arriveU = ARR.map(i => cumW[i] / TOTW);
+const pathU = s => { let lo = 0, hi = STREET_N - 1; const t = s * TOTW; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (cumW[m] <= t) lo = m; else hi = m; } return (lo + (t - cumW[lo]) / ((cumW[hi] - cumW[lo]) || 1)) / (STREET_N - 1); };
 /* where the camera looks: ahead down the street, turning up to face each building as we pass it */
 const rawLook = sp.map((p, i) => {
   const dir = sp[Math.min(STREET_N - 1, i + 3)].clone().sub(sp[Math.max(0, i - 3)]); dir.y = 0; dir.normalize();
-  let look = V(p.x + dir.x * 30, SY + 3, p.z + dir.z * 30), best = 0;
-  LM.forEach((l, k) => { const w = 1 - sstep(25, 170, Math.abs(i - ARR[k]) * 6); if (w > best) { best = w; const hd = Math.hypot(l.x - p.x, l.z - p.z); look = V(p.x + dir.x * 30, SY + 3, p.z + dir.z * 30).lerp(V(l.x, Math.min(l.y * 0.62, SY + hd * 1.1), l.z), w); } });
+  const eye = (x, z, rise) => { const d = Math.hypot(x - p.x, z - p.z); return SY - 1 + Math.min(rise, d * 0.12); };   // never tilt more than ~11 degrees: the view stays level with the street
+  const ahead = V(p.x + dir.x * 40, SY - 3.5, p.z + dir.z * 40);
+  let look = ahead.clone(), best = 0;
+  /* turn (sideways, not upwards) to face each building as we pass it */
+  LM.forEach((l, k) => { const w = 1 - sstep(25, 170, Math.abs(i - ARR[k]) * 6); if (w > best) { best = w; look = ahead.clone().lerp(V(l.x, eye(l.x, l.z, l.y * 0.2), l.z), w * 0.35); } });
+  /* a billboard that faces us and sits in front of us pulls the gaze onto it */
+  let bw = 0, bt = null;
+  ads.forEach(a => {
+    const dx = a.x - p.x, dz = a.z - p.z, d = Math.hypot(dx, dz) || 1, face = (-dx * a.nx - dz * a.nz) / d, fwd = (dx * dir.x + dz * dir.z) / d;
+    if (d < 25 || d > 130 || face < 0.3 || fwd < 0.35) return;
+    const w = Math.min(a.w * a.h / 400, 1) * 0.5 + face * 0.5, f = w * (1 - sstep(70, 130, d)) * sstep(25, 45, d) * Math.min(1, (fwd - 0.35) / 0.3);
+    if (f > bw) { bw = f; bt = a; }
+  });
+  if (bt) look.lerp(V(bt.x, eye(bt.x, bt.z, bt.y - SY), bt.z), Math.min(1, bw) * 0.85);
   return look;
 });
 const sLookPts = rawLook.map((_, i) => { const o = V(0, 0, 0); let n = 0; for (let k = -4; k <= 4; k++) { o.add(rawLook[Math.min(STREET_N - 1, Math.max(0, i + k))]); n++; } return o.multiplyScalar(1 / n); });
-const hero = V(CENTRE.x + 300, 360, CENTRE.z + 470), heroLook = V(CENTRE.x - 20, 30, CENTRE.z - 40), belief = V(CENTRE.x + 60, 85, CENTRE.z + 330), beliefLook = V(CENTRE.x - 30, 70, CENTRE.z - 120);
+/* final guard: keep the gaze far enough ahead and never more than ~12 degrees off level, so the view never swings up at a tower */
+sLookPts.forEach((l, i) => { const p = sp[i], dir = sp[Math.min(STREET_N - 1, i + 3)].clone().sub(sp[Math.max(0, i - 3)]); dir.y = 0; dir.normalize();
+  let hx = l.x - p.x, hz = l.z - p.z, h = Math.hypot(hx, hz);
+  if (h < 30 || (hx * dir.x + hz * dir.z) / (h || 1) < 0.2) { l.x = p.x + dir.x * 30 + hx * 0.2; l.z = p.z + dir.z * 30 + hz * 0.2; hx = l.x - p.x; hz = l.z - p.z; h = Math.hypot(hx, hz); }
+  { const a = Math.atan2(dir.x * hz - dir.z * hx, dir.x * hx + dir.z * hz), c = Math.max(-0.38, Math.min(0.38, a)); if (c !== a) { const ca = Math.cos(c), sa = Math.sin(c); l.x = p.x + (dir.x * ca - dir.z * sa) * h; l.z = p.z + (dir.z * ca + dir.x * sa) * h; } }   // never swing more than ~22 degrees off the street
+  l.y = Math.min(l.y, SY + h * 0.13); l.y = Math.max(l.y, SY - 3.5); });
+/* the opening: glide in from the south at rooftop height over the billboard district (so the first seconds already show the ads), climb well above every roof, then drop straight down the open street at the start of the tour.
+   Every point was checked against the model's height map: the camera is always at least 10 m clear of every building. */
 const towerLook = V(LM[0].x, LM[0].y * 0.5, LM[0].z);
-const introCam = new THREE.CatmullRomCurve3([hero, belief, V(sp[0].x, 330, sp[0].z), V(sp[0].x, 190, sp[0].z), V(sp[0].x, 80, sp[0].z), sp[0]], false, 'centripetal', 0.5);   // the last three points drop straight down the open street
-const introLook = new THREE.CatmullRomCurve3([heroLook, beliefLook, towerLook, towerLook, towerLook, sLookPts[0]], false, 'centripetal', 0.5);
+const introCam = new THREE.CatmullRomCurve3([V(-20, 100, 430), V(-55, 88, 310), V(-65, 74, 225), V(-95, 150, 95), V(-105, 250, -60), V(sp[0].x, 330, sp[0].z), V(sp[0].x, 190, sp[0].z), V(sp[0].x, 80, sp[0].z), sp[0]], false, 'centripetal', 0.5);
+const introLook = new THREE.CatmullRomCurve3([V(-68, 40, 110), V(-64, 38, 80), V(-60, 35, 58), V(-110, 55, -120), V(-125, 40, -200), towerLook, towerLook, towerLook, sLookPts[0]], false, 'centripetal', 0.5);
 const sCam = new THREE.CatmullRomCurve3(sp, false, 'centripetal', 0.5), sLook = new THREE.CatmullRomCurve3(sLookPts, false, 'centripetal', 0.5);
 function flightAt(p, pos, look) {
   if (p < P_INTRO) { const f = Math.min(0.9999, Math.max(0, (p / P_INTRO - 0.1) / 0.9)), e = f * f * (3 - 2 * f) * 0.35 + f * 0.65; introCam.getPoint(e, pos); introLook.getPoint(e, look); }
-  else { const u = Math.min(0.9999, (p - P_INTRO) / (1 - P_INTRO)); sCam.getPoint(u, pos); sLook.getPoint(u, look); }
+  else { const u = Math.min(0.9999, (p - P_INTRO) / (1 - P_INTRO)); const w = pathU(u); sCam.getPoint(w, pos); sLook.getPoint(w, look); }
 }
 const stopP = i => (i === 0 ? 0 : i === 1 ? 0.1 : P_INTRO + arriveU[i - 2] * (1 - P_INTRO));      // dot / pin / hash -> where that building is on the scroll
 const stopFromP = p => { if (p < 0.06) return 0; if (p < 0.13) return 1; const u = (p - P_INTRO) / (1 - P_INTRO); if (u <= 0) return 2; let k = 0, bd = 9; arriveU.forEach((au, i) => { const d = Math.abs(u - au); if (d < bd) { bd = d; k = i; } }); return 2 + k; };
@@ -106,7 +133,18 @@ function mergeByMaterial(root) {
 }
 /* Materials are left exactly as the model's author made them: colours, textures, normal maps, shininess, glass and sidedness.
    Only the texture sharpness is raised (anisotropic filtering) and every surface can cast and receive the sun's shadows. */
+/* the billboards in the buildings show indie's own ads (assets/ads/ad-1..4): the wide boards get the landscape poster, the tall ones the portrait posters */
+const AD_RE = /billboard|(^|[_\- ])ad([_\- .]|$)|_ad$/i, adTex = [1, 2, 3, 4].map(i => { const t = new THREE.TextureLoader().load('assets/ads/ad-' + i + '.webp'); t.flipY = false; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; });
+const adSize = {}; ads.forEach(a => { adSize[a.n] = a.w / a.h; }); let adNext = 0;
+function paintAd(m) {
+  if (!AD_RE.test(m.name || '') || /black/i.test(m.name)) return;
+  const wide = (adSize[m.name] || 0.7) > 1.1, t = wide ? adTex[0] : adTex[1 + (adNext++ % 3)];
+  m.map = t; m.emissiveMap = t; if (m.emissive) m.emissive.set(0xffffff); m.emissiveIntensity = 0.55; m.color && m.color.set(0xffffff); m.needsUpdate = true;
+}
 function prepare(gltf) {
+  /* no vehicles: every car is a "Body" group (paint, wheels, lights, glass), so the whole group goes */
+  const cars = new Set(); gltf.scene.traverse(o => { if (o.isMesh && (Array.isArray(o.material) ? o.material : [o.material]).some(m => /^(car_(paint|side_light)|Wheel)/.test(m.name || ''))) cars.add(o.parent && /^Body/.test(o.parent.name) ? o.parent : o); });
+  cars.forEach(c => { c.parent && c.parent.remove(c); });
   let meshes = 0; gltf.scene.traverse(o => { if (o.isMesh) meshes++; });
   const root = meshes > 400 ? mergeByMaterial(gltf.scene) : gltf.scene;
   const seen = new Set(), maxAniso = renderer.capabilities.getMaxAnisotropy();
@@ -114,7 +152,7 @@ function prepare(gltf) {
     if (!o.isMesh) return; o.frustumCulled = meshes <= 400; o.castShadow = true; o.receiveShadow = true;
     (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => {
       if (seen.has(m)) return; seen.add(m);
-      m.envMapIntensity = 0.85;
+      m.envMapIntensity = 0.85; paintAd(m);
       if (m.transmission > 0) m.thickness = m.thickness || 0.1;
       [m.map, m.normalMap, m.roughnessMap, m.metalnessMap, m.emissiveMap, m.aoMap].forEach(t => { if (t) t.anisotropy = maxAniso; }); m.needsUpdate = true;
     });
@@ -165,7 +203,7 @@ function useCardVideo(slug) {
   const url = 'assets/cards/' + slug + '.mp4';
   const apply = ok => {
     if (svcIdx < 0 || SERVICES[svcIdx].slug !== slug) return;
-    cdVideo.hidden = !ok; cdCanvas.style.display = ok ? 'none' : 'block';
+    cdVideo.hidden = !ok; cdCanvas.style.display = 'none';
     if (ok) { if (cdVideo.getAttribute('src') !== url) { cdVideo.src = url; cdVideo.load(); } cdVideo.play().catch(() => {}); } else cdVideo.pause();
   };
   if (slug in vidOk) apply(vidOk[slug]);
@@ -201,7 +239,6 @@ function drawWall(tt) {
 function drawPreview(tt) {
   if (svcIdx < 0 || fpSvc.style.visibility === 'hidden' || +fpSvc.style.opacity < 0.05) return;
   drawWall(tt);
-  if (cdCanvas.style.display !== 'none') drawSketch(svcIdx, cdCtx, cdCanvas.width, cdCanvas.height, tt);
   const f = Math.floor(tt * 24); cdTc.textContent = String(Math.floor(tt / 60) % 60).padStart(2, '0') + ':' + String(Math.floor(tt) % 60).padStart(2, '0') + ':' + String(f % 24).padStart(2, '0');
 }
 function setActive(i) {
@@ -219,7 +256,7 @@ function setActive(i) {
 /* ---- free exploration ---- */
 const layer = $('#exploreLayer'), controls = new OrbitControls(camera, layer);
 controls.enabled = false; controls.enableDamping = true; controls.dampingFactor = 0.08; controls.maxPolarAngle = Math.PI * 0.497; controls.minDistance = 5; controls.maxDistance = 1400; controls.screenSpacePanning = false; controls.zoomSpeed = 1.1; controls.rotateSpeed = 0.7;
-const keys = {}; addEventListener('keydown', e => { if (!exploring) { if ((e.key === 'e' || e.key === 'E') && !e.metaKey && !e.ctrlKey && !/INPUT|TEXTAREA/.test(document.activeElement.tagName) && flightVis && loaded) enterExplore(); return; } if (e.key === 'Escape') exitExplore(); keys[e.key.toLowerCase()] = true; });
+const keys = {}; addEventListener('keydown', e => { if (!exploring) { if (e.key === 'Enter' && active >= 2 && +fpSvc.style.opacity > 0.5 && !/INPUT|TEXTAREA|A|BUTTON/.test(document.activeElement.tagName)) { $('#rwLink').click(); return; } if ((e.key === 'e' || e.key === 'E') && !e.metaKey && !e.ctrlKey && !/INPUT|TEXTAREA/.test(document.activeElement.tagName) && flightVis && loaded) enterExplore(); return; } if (e.key === 'Escape') exitExplore(); keys[e.key.toLowerCase()] = true; });
 addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 const blend = { v: 0 }, tmpV = new THREE.Vector3(); const exitPos = new THREE.Vector3(), exitTarget = new THREE.Vector3(), flightPos = new THREE.Vector3(), flightLook = new THREE.Vector3(), fwd = new THREE.Vector3(), rgt = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0);
 function enterExplore() {
@@ -232,11 +269,11 @@ function exitExplore() {
   exitPos.copy(camera.position); exitTarget.copy(controls.target); blend.v = 1; gsap.to(blend, { v: 0, duration: 1.6, ease: 'power3.inOut' }); active = -1; prog = progT;
 }
 function flyToBuilding(k) {
-  gsap.to(camera.position, { x: sCam.getPoint(arriveU[k]).x, y: SY, z: sCam.getPoint(arriveU[k]).z, duration: 2.2, ease: 'power3.inOut', overwrite: true });
-  gsap.to(controls.target, { x: sLook.getPoint(arriveU[k]).x, y: sLook.getPoint(arriveU[k]).y, z: sLook.getPoint(arriveU[k]).z, duration: 2.2, ease: 'power3.inOut', overwrite: true, onComplete: () => { fillService(k); fpSvc.classList.remove('left'); show(fpSvc, true); } });
+  gsap.to(camera.position, { x: sCam.getPoint(ARR[k] / (STREET_N - 1)).x, y: SY, z: sCam.getPoint(ARR[k] / (STREET_N - 1)).z, duration: 2.2, ease: 'power3.inOut', overwrite: true });
+  gsap.to(controls.target, { x: sLook.getPoint(ARR[k] / (STREET_N - 1)).x, y: sLook.getPoint(ARR[k] / (STREET_N - 1)).y, z: sLook.getPoint(ARR[k] / (STREET_N - 1)).z, duration: 2.2, ease: 'power3.inOut', overwrite: true, onComplete: () => { fillService(k); fpSvc.classList.remove('left'); show(fpSvc, true); } });
   show(fpSvc, false);
 }
-$('#exploreBtn').addEventListener('click', enterExplore); $('#exploreExit').addEventListener('click', exitExplore);
+$('.cd-screen').addEventListener('click', () => $('#rwLink').click()); $('#exploreBtn').addEventListener('click', enterExplore); $('#exploreExit').addEventListener('click', exitExplore);
 $$('#exploreHud [data-fly]').forEach(b => b.addEventListener('click', () => flyToBuilding(+b.dataset.fly)));
 pins.forEach(p => p.addEventListener('click', e => { const k = +p.dataset.i; if (exploring) { e.preventDefault(); e.stopPropagation(); flyToBuilding(k); return; } if (active === k + 2) return; e.preventDefault(); e.stopPropagation(); goTo(k + 2); }));
 

@@ -3,16 +3,11 @@
   'use strict';
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const wipe = document.getElementById('wipe');
-  const idx = SERVICES.findIndex(s => s.slug === document.body.dataset.slug);
+  const idx = SERVICES.findIndex(s => s.slug === document.body.dataset.slug), p = SERVICES[idx];
 
-  const cv = document.getElementById('banner');
-  if (cv && idx >= 0) {
-    const g = cv.getContext('2d');
-    const fit = () => { const k = Math.min(devicePixelRatio || 1, 1.5); cv.width = cv.clientWidth * k; cv.height = cv.clientHeight * k; };
-    fit(); addEventListener('resize', fit);
-    const loop = now => { drawSketch(idx, g, cv.width, cv.height, reduce ? 2 : now / 1000); if (!reduce) requestAnimationFrame(loop); };
-    requestAnimationFrame(loop);
-  }
+  /* the building's clip is the cover banner behind the title */
+  const cover = document.getElementById('cover');
+  if (cover) { cover.addEventListener('error', () => { cover.style.display = 'none'; }); const go = () => cover.play().catch(() => {}); cover.addEventListener('loadeddata', go, { once: true }); go(); }
 
   const wipeT = document.getElementById('wipeT'); if (wipeT && p) wipeT.textContent = 'Scene 0' + (idx + 1) + ' · ' + p.title; wipe.style.transition = 'transform 1.1s cubic-bezier(.7,0,.2,1)';
   requestAnimationFrame(() => wipe.classList.remove('cover'));

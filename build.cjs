@@ -40,7 +40,7 @@ SERVICES.forEach((p, i) => {
 
 <main>
   <section class="s-hero">
-    <canvas id="banner" aria-hidden="true"></canvas>
+    <video class="s-cover" id="cover" src="../assets/cards/${p.slug}.mp4" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
     <span class="eyebrow">Scene ${num(i)} / ${num(SERVICES.length - 1)} · ${esc(p.kind)}</span>
     <h1>${esc(first)}${words.length ? ' <em style="color:' + p.c[0] + '">' + esc(words.join(' ')) + '</em>' : ''}</h1>
     <p class="lede">${esc(p.what)}</p>
@@ -48,7 +48,7 @@ SERVICES.forEach((p, i) => {
 
   <section class="s-body">
     <div>
-      <h2>${p.steps ? 'The five steps' : 'What you get'}</h2>
+      <h2>${p.steps ? 'The five steps' : 'What we do'}</h2>
       <p>${esc(p.get)}</p>
       ${list}
       <a class="cta-btn" href="mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Project: ' + p.title)}">Start a project →</a>
